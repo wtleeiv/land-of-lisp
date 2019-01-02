@@ -35,3 +35,5 @@
 ** Read and Eval
 beware calling ~read~ and/or ~eval~ directly
 reader macros can fuck you, ex: ~#.{format-disk}~
+
+* Chapter 7
