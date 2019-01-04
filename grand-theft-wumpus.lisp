@@ -6,7 +6,7 @@
 (defparameter *node-num* 30)
 (defparameter *edge-num* 45)
 (defparameter *worm-num* 3)
-(defparameter *cop-odds* 15)
+(defparameter *cop-odds* 15) ;; 1 in 15 odds -> 6.67%
 
 (defun random-node ()
   (1+ (random *node-num*)))
