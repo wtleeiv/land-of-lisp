@@ -160,13 +160,6 @@
 (defun draw-known-city ()
   (graph-util:png<-ugraph "known-city" (known-city-nodes) (known-city-edges)))
 
-(defun new-game ()
-  (setf *congestion-city-edges* (make-city-edges)
-	*congestion-city-nodes* (make-city-nodes *congestion-city-edges*)
-	*player-pos* (find-empty-node)
-	*visited-nodes* (list *player-pos*))
-  (draw-city)
-  (draw-known-city))
 
 (defun handle-new-place (edge pos charging)
   (let* ((node (assoc pos *congestion-city-nodes*))
@@ -191,6 +184,16 @@
     (if edge
 	(handle-new-place edge pos charging)
 	(princ "That location does not exist!"))))
+
+;;; Interface
+
+(defun new-game ()
+  (setf *congestion-city-edges* (make-city-edges)
+	*congestion-city-nodes* (make-city-nodes *congestion-city-edges*)
+	*player-pos* (find-empty-node)
+	*visited-nodes* (list *player-pos*))
+  (draw-city)
+  (draw-known-city))
 
 (defun walk (pos)
   (handle-direction pos nil))

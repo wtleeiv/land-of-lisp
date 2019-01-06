@@ -36,4 +36,24 @@
 beware calling ~read~ and/or ~eval~ directly
 reader macros can fuck you, ex: ~#.{format-disk}~
 
-* Chapter 7
+* Chapter 10
+
+** Loop
+
+pdf page 220 & 221
+
+#+BEGIN_SRC lisp
+  (loop for i below 5
+	sum i)
+#+END_SRC
+
+#+RESULTS:
+: 10
+
+#+BEGIN_SRC lisp
+  (loop for i from 2 to 6
+       do (print i))
+#+END_SRC
+
+#+RESULTS:
+: NIL
