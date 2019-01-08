@@ -1,8 +1,11 @@
 * Chapter 2
+
 ~ash~ :: arithmetic shift
+
 ** TODO lookup other bit-bashing lisp fns
 
 * Chapter 5
+
 ~push~ and ~assoc~ used together to update alist
 
 * Chapter 6
@@ -13,7 +16,7 @@
 | Human    | (read-line) | (princ)  |
 
 ** Classic Repl
-#+BEGIN_SRC
+#+BEGIN_SRC lisp
 (defun repl ()
   (loop (print (eval (read)))))
 #+END_SRC
@@ -21,7 +24,7 @@
 ** List Processing
 ~coerce~ data to/from lists, strings, etc for easy processing
 
-#+BEGIN_SRC
+#+BEGIN_SRC lisp
 (defun game-print (lst)
   (princ (coerce (tweak-text (coerce (string-trim "() "
 						  (prin1-to-string lst))
@@ -33,14 +36,13 @@
 #+END_SRC
 
 ** Read and Eval
+
 beware calling ~read~ and/or ~eval~ directly
 reader macros can fuck you, ex: ~#.{format-disk}~
 
 * Chapter 10
-
+** TODO print pdf pages 220 & 221
 ** Loop
-
-pdf page 220 & 221
 
 #+BEGIN_SRC lisp
   (loop for i below 5
