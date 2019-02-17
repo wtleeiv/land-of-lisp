@@ -53,8 +53,8 @@
 
 (ql:quickload :usocket)
 
-(defun serve (request-handler)
-  (let ((socket (usocket:socket-listen "127.0.0.1" 8080)))
+(defun serve (port request-handler)
+  (let ((socket (usocket:socket-listen "127.0.0.1" port)))
     (unwind-protect
 	 (loop
 	   (with-open-stream (stream (usocket:socket-stream
@@ -65,13 +65,36 @@
 		    (params (append (cdr url)
 				    (get-content-params stream header)))
 		    (*standard-output* stream))
-	       (funcall request-handler path header params))))
+	       (funcall request-handler path header params)
+	       (force-output stream))))
       (usocket:socket-close socket))))
 
+(defun serve-better (port request-handler)
+  (usocket:with-socket-listener (socket "127.0.0.1" port)
+    (loop
+      (with-open-stream (stream (usocket:socket-stream
+				 (usocket:socket-accept socket)))
+	(let* ((url (parse-url (read-line stream)))
+	       (path (car url))
+	       (header (get-header stream))
+	       (params (append (cdr url)
+			       (get-content-params stream header)))
+	       (*standard-output* stream))
+	  (funcall request-handler path header params)
+	  (force-output stream))))))
+
 (defun hello-request-handler (path header params)
-  (if (equal path "greeting")
-      (let ((name (assoc 'name params)))
-	(if (not name)
-	    (princ "<html><form>What is your name?<input name='name' /></form></html>")
-	    (format t "<html>Nice to meet you, ~a</html>" (cdr name))))
-      (princ "Sorry... I don't know that page.")))
+  (let ((msg (if (equal path "greeting")
+		 (let ((name (assoc 'name params)))
+		   (if (not name)
+		       "<html><body>
+<form>What is your name?<input name='name' /></form>
+</body></html>"
+		       (format nil "<html><body>
+Nice to meet you, ~a
+</body></html>"
+			       (cdr name))))
+		 "Sorry... I don't know that page.")))
+    (format t "HTTP/1.1 200 OK~% Content-Length: ~a~%~%~a"
+	    (length msg)
+	    msg)))
