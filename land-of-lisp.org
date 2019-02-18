@@ -59,3 +59,85 @@ reader macros can fuck you, ex: ~#.{format-disk}~
 
 #+RESULTS:
 : NIL
+
+* Chapter 13
+** Conditions
+*** Error w/ string msg
+    #+BEGIN_SRC lisp
+      (error "foo")
+    #+END_SRC
+*** Define condition
+    #+BEGIN_SRC lisp
+      (define-condition foo () ()
+	(:report (lambda (condition stream)
+		   (break)
+		   (princ "Stop itttt!!" stream))))
+    #+END_SRC
+*** Raise condition w/ sym
+    #+BEGIN_SRC lisp
+      (defun bad-function ()
+	(error 'foo))
+    #+END_SRC
+*** Handle condition
+    #+BEGIN_SRC lisp
+      (handler-case (bad-function)		; call potential condition fn
+	(foo () "foo happened")		; handle conditions here
+	(bar () "bar happened"))
+    #+END_SRC
+* Chapter 16
+**   Macros
+*** Simple Example
+    #+BEGIN_SRC lisp
+      (defmacro let1 (var val &body body)
+	`(let ((,var ,val))
+	   ,@body))
+    #+END_SRC
+
+    #+BEGIN_SRC lisp
+      (let1 foo (+ 2 3)
+	(princ "Lisp is awesome!")
+	(* foo foo))
+    #+END_SRC
+
+*** Macroexpand to check
+    #+BEGIN_SRC lisp
+      (macroexpand '(let1 foo (+ 2 3)
+			      (princ "Lisp is awesome!")
+			      (* foo foo)))
+    #+END_SRC
+
+*** Bad: Multiple Eval
+    #+BEGIN_SRC lisp
+      (defmacro split (val yes no)
+	"anaphoric 'head' and 'tail"
+	`(if ,val
+	     (let ((head (car ,val))		; multiple eval
+		   (tail (cdr ,val)))		; multiple eval
+	       ,yes)
+	     ,no))
+    #+END_SRC
+
+*** Also bad: Variable Capture
+    #+BEGIN_SRC lisp
+      (defmacro split (val yes no)
+	"anaphoric 'head' and 'tail"
+	`(let1 x ,val				; variable capture
+	   (if x
+	       (let ((head (car x))
+		     (tail (cdr x)))
+		 ,yes)
+	       ,no)))
+    #+END_SRC
+
+*** Correct!
+    #+BEGIN_SRC lisp
+      (defmacro split (val yes no)
+	"anaphoric 'head' and 'tail"
+	(let1 g (gensym)			; get gensym at macro-expansion time
+	  `(let1 ,g ,val			; use gensym value as var name in macro
+	     (if ,g
+		 (let ((head (car ,g))
+		       (tail (cdr ,g)))
+		   ,yes)
+		 ,no))))
+    #+END_SRC
